@@ -1,0 +1,16 @@
+name: raypier
+
+channels:
+  - conda-forge
+
+dependencies:
+  - cython
+  - numpy
+  - eigen
+  - ffmpeg
+  - expat
+  - hdf5
+  - pyyaml
+  - traits
+  - mayavi
+  - scipy

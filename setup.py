@@ -15,87 +15,96 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#import distribute_setup
-#distribute_setup.use_setuptools()
+# import distribute_setup
+# distribute_setup.use_setuptools()
 from setuptools import find_packages, setup
-#from distutils.core import setup
+import platform
+
+# from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 from Cython.Build import cythonize
-#from setuptools import find_packages
+
+# from setuptools import find_packages
 
 import sys
 import numpy
+
+SYS_NAME = platform.system()
 
 includes = [numpy.get_include()]
 libpath = []
 
 Win64 = sys.platform.startswith("win")
 
-openmp = '/openmp' if Win64 else '-fopenmp'
-
-ext_modules = cythonize("raypier/core/*.pyx",
-                        language="c++" if Win64 else None,
-                        include_path=[numpy.get_include()],
-                        language_level = "3")
+ext_modules = cythonize(
+    "raypier/core/*.pyx",
+    language="c++" if Win64 else None,
+    include_path=[numpy.get_include()],
+    language_level="3",
+)
 
 for module in ext_modules:
-    module.extra_compile_args.append(openmp)
-    if not Win64:
-        module.extra_compile_args.append('-march=native')
-    module.extra_link_args.append(openmp)
-    
-with open("README.rst", 'r', encoding="utf-8") as fh:
+    if SYS_NAME == "Darwin":
+        pass
+    elif SYS_NAME == "Windows":
+        module.extra_compile_args.append("/openmp")
+        module.extra_link_args.append("/openmp")
+    else:  # LINUX
+        module.extra_compile_args.append("-fopenmp")
+        module.extra_compile_args.append("-march=native")
+        module.extra_link_args.append("-fopenmp")
+
+
+with open("README.rst", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="raypier",
     version="0.2.3",
     packages=find_packages(),
-    scripts = [], #no stand-alone application yet
-    cmdclass = {'build_ext': build_ext},
-    #ext_package = "raypier", ###Not needed on linux. Is it necessary on Win64?
-    ext_modules = ext_modules,
-    include_dirs = [numpy.get_include()],
-    zip_safe = False, #Zipped eggs cause the ReadTheDocs build to fail.
-
-    install_requires = [
-        #"VTK",
-        #"wxPython", #maybe can avoid an explicit dependancy on wx
-        "numpy >= 1.19", 
+    scripts=[],  # no stand-alone application yet
+    cmdclass={"build_ext": build_ext},
+    # ext_package = "raypier", ###Not needed on linux. Is it necessary on Win64?
+    ext_modules=ext_modules,
+    include_dirs=[numpy.get_include()],
+    zip_safe=False,  # Zipped eggs cause the ReadTheDocs build to fail.
+    install_requires=[
+        # "VTK",
+        # "wxPython", #maybe can avoid an explicit dependancy on wx
+        "numpy >= 1.19",
         "traits >= 6.0",
-        "mayavi >= 4.7", #TVTK is distributed as part of Mayavi
+        "mayavi >= 4.7",  # TVTK is distributed as part of Mayavi
         "traitsui >= 7.0",
-        "pyyaml"
-        ],
-
-    package_data = {
+        "pyyaml",
+    ],
+    package_data={
         "": ["*.pyx", "*.pxd"],
-        "raypier": ["material_data/glass_dispersion_database.db"]
-        },
-
-    author = "Bryan Cole",
-    author_email = "bryancole.cam@gmail.com",
-    description = """A optical ray-tracing package, for design, optimisation and \
+        "raypier": ["material_data/glass_dispersion_database.db"],
+    },
+    author="Bryan Cole",
+    author_email="bryancole.cam@gmail.com",
+    description="""A optical ray-tracing package, for design, optimisation and \
 visualisation of mirror/lens systems.""",
-    long_description = long_description,
-    license = "GPL3",
-    keywords = "science engineering optics ray-tracing physics",
-    classifiers=["Development Status :: 4 - Beta",
-                 "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-                 "Natural Language :: English",
-                 "Programming Language :: Cython",
-                 "Programming Language :: Python :: 3.7",
-                 "Programming Language :: Python :: Implementation :: CPython",
-                 "Topic :: Scientific/Engineering :: Physics",
-                 "Topic :: Scientific/Engineering :: Visualization"
-                 ],
-    url = "https://groups.google.com/u/1/g/python-raytrace",
-    project_urls = {
-        "Homepage" : "https://groups.google.com/u/1/g/python-raytrace",
-        "Documentation" : "https://raypier-optics.readthedocs.io/en/latest/index.html",
-        "Source" : "https://github.com/bryancole/raypier_optics.git",
-        "Issues" : "https://github.com/bryancole/raypier_optics/issues"
-        },
-    python_requires=">=3.7"
-    )
+    long_description=long_description,
+    license="GPL3",
+    keywords="science engineering optics ray-tracing physics",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
+        "Programming Language :: Cython",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Visualization",
+    ],
+    url="https://groups.google.com/u/1/g/python-raytrace",
+    project_urls={
+        "Homepage": "https://groups.google.com/u/1/g/python-raytrace",
+        "Documentation": "https://raypier-optics.readthedocs.io/en/latest/index.html",
+        "Source": "https://github.com/bryancole/raypier_optics.git",
+        "Issues": "https://github.com/bryancole/raypier_optics/issues",
+    },
+    python_requires=">=3.7",
+)
