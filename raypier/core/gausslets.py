@@ -80,10 +80,10 @@ def make_hexagonal_grid(radius, spacing=1.0, connectivity=False):
     select = r2 < (radius**2)
     
     if connectivity:
-        labels = -numpy.ones((ni+2, nj+2), numpy.int)
+        labels = -numpy.ones((ni+2, nj+2), int)
         labels[1:-1, 1:-1] = numpy.arange(ni*nj).reshape(ni,nj)
         
-        centres = -numpy.ones((vi.size,), numpy.int)
+        centres = -numpy.ones((vi.size,), int)
         neighbours = numpy.dstack([labels[2:,1:-1], labels[:-2,1:-1],
                                    labels[1:-1,2:], labels[1:-1,:-2],
                                    labels[2:,:-2], labels[:-2,2:]])
